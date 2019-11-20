@@ -1,0 +1,8 @@
+library(drake)
+library(here)
+library(MicroDatosEs)
+library(future)
+library(readxl)
+library(drake)
+library(here)
+library(tidyverse)
