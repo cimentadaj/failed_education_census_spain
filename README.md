@@ -8,11 +8,9 @@ Note that running this analysis requires your computer to have more than 8 GB of
 
 2. Clone the repository in your local computer either by `git clone https://github.com/cimentadaj/fespain.git` or by clicking on `Clone or download` (the green button on Github) and then clicking on `Download ZIP`. For those who downloaded the zipped project, unzip it in your local computer.
 
-3. Open an R session on the root of the project and run in R `install.packages("renv")`, then run `renv::init()` and when prompted by the console, choose `1: Restore the project from the lockfile.` by pressing the number `1`.
+<!-- 3. Open an R session on the root of the project and run in R `install.packages("renv")`, then run `renv::init()` and when prompted by the console, choose `1: Restore the project from the lockfile.` by pressing the number `1`. -->
 
-At this point you should have all the code of the project as well as all the packages installed for performing the analysis.
-
-4. Restart R in the same root directory and you should see something like this on the top of your screen:
+3. Restart R in the root directory and you should see something like this on the top of your screen:
 
 ```
 * Project '~/repositories/fespain' loaded. [renv 0.5.0-66]
@@ -20,4 +18,8 @@ At this point you should have all the code of the project as well as all the pac
 
 Doesn't matter if the directory is not the same. It's alright if you got **something** like this.
 
-5. Run `drake::r_make()` from the R console and all of the analysis should start compiling.
+Now run `renv::init()` and when prompted by the console, choose `1: Restore the project from the lockfile.` by pressing the number `1`.
+
+At this point you should have all the code of the project and the packages needed to run it.
+
+5. Restart R in the same root directory and run `drake::r_make()` from the R console. All of the analysis should start compiling.
