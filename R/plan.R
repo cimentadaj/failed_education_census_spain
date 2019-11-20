@@ -61,9 +61,13 @@ columns_to_read <- c("CPRO",
 
 plan <-
   drake_plan(
+    ############################# Read the data ################################
+    ############################################################################
+
     read_data =
       target(
         read_fst(file_in(processed_path), columns = columns_to_read),
         format = "fst"
-        )
+      )
+
   )
