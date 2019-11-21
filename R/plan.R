@@ -48,6 +48,9 @@ variable_coding <-
 ############################# Drake plan of analysis ##########################
 ###############################################################################
 
+shp_file <-
+  here("raw_data/shape_files_censustract/SECC_CPV_E_20111101_01_R_INE.shp")
+
 columns_to_read <- c("CPRO",
                      "CMUN",
                      "IDHUECO",
@@ -64,9 +67,12 @@ plan <-
     ############################# Read the data ################################
     ############################################################################
 
-    read_data =
+    census_2011 =
       target(
-        read_fst(file_in(processed_path), columns = columns_to_read),
+        read_census(file_in(processed_path),
+                    shp_file,
+                    columns = columns_to_read),
+
         format = "fst"
       )
 
