@@ -1,4 +1,5 @@
 .drake/
-/raw_data/*.txt
-/raw_data/*.zip
-/data/2011_census.fst
+/raw_data/*
+/raw_data/*
+/data/*
+tst.rds

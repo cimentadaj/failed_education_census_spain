@@ -2,7 +2,52 @@
 
 This repository hosts the work of a paper exploring failed education in Spain using census data. The repo is named after **f**ailed **e**ducation **spain**.
 
-1. To reproduce this, you'll need to download the Spanish 2011 census data from [here](https://www.ine.es/censos2011_datos/cen11_datos_microdatos.htm) (click on 'Nacional' after 'Fichero de microdatos' and a download window should appear). Once you download the data, save the file `MicrodatosCP_NV_per_nacional_3VAR.txt` in the `data` folder. Your `data` folder should only have the files `MicrodatosCP_NV_per_nacional_3VAR.txt` and `variable_labels.xls`, which already should be there.
+1. To reproduce this, you'll need to download several Spanish censuses.
+
+  1. Spanish 1991 census data from [here](https://www.ine.es/censos2011_datos/cen11_datos_microdatos.htm). Click on 'Censos 1991' --> go to the section 'Personas' -> search for the phrase 'Ficheros de microdatos (muestra 10%). Seleccionar provincia:' in this section --> iteratively choose each province and then click on 'Ir' to download the data. You need to do this for each province, download the file to `raw_data/censo_1991` and unzip the file. This way, you'll get 52 files, one for each province. In R, you can download everything automatically with the code below. **However** remember to change the line `where_to_save` to save all files to the local directory of `raw_data/censo_1991`:
+
+  ```r
+  # Provide here the directory where you would like to save all province files
+  where_to_save <- "./raw_data/censo_1991"
+
+  prov_paths <-
+    paste0("ftp://www.ine.es/temas/censopv/cen91_p/p",
+           formatC(1:52, width = "2", flag = "0"),
+           "mper_cen91.zip")
+  
+  for (i in prov_paths) {
+    dir_save <- file.path(where_to_save, "file.zip")
+    download.file(i, dir_save)
+    unzip(dir_save, exdir = dirname(dir_save))
+  }
+
+  file.remove(dir_save)
+```
+
+  All files should be saved now in `raw_data/censo_1991`
+
+  2. Spanish 2001 census data from [here](https://www.ine.es/censos2011_datos/cen11_datos_microdatos.htm). Click on 'Censos 2001' --> go to the section 'Personas y hogares' -> search for the phrase 'Fichero de microdatos por provincias' in this section --> iteratively choose each province and then click on 'Ir' to download the data. You need to do this for each province, download the file to `raw_data/censo_2001` and unzip the file. This way, you'll get 52 files, one for each province. In R, you can download everything automatically with the code below. **However** remember to change the line `where_to_save` to save all files to the local directory of `raw_data/censo_2001`:
+  
+  ```r
+  # Provide here the directory where you would like to save all province files
+  where_to_save <- "./raw_data/censo_2001"
+  
+  prov_paths <-
+    paste0("ftp://www.ine.es/temas/censopv/cen01_ph/p",
+           formatC(1:52, width = "2", flag = "0"),
+           "ph_cen01.zip")
+  for (i in prov_paths) {
+    dir_save <- file.path(where_to_save, "file.zip")
+    download.file(i, dir_save)
+    unzip(dir_save, exdir = dirname(dir_save))
+  }
+
+  file.remove(dir_save)
+```
+
+  All files should be saved now in `raw_data/censo_2001`
+
+  3. Spanish 2011 census data from [here](https://www.ine.es/censos2011_datos/cen11_datos_microdatos.htm) (click on 'Nacional' after 'Fichero de microdatos' and a download window should appear). Once you download the data, unzip it and save the file `MicrodatosCP_NV_per_nacional_3VAR.txt` in the folder `raw_data/censo_2011`. Your `raw_data/censo_2011` folder should only have the files `MicrodatosCP_NV_per_nacional_3VAR.txt`. The file should weight around 1.2GB.
 
 Note that running this analysis requires your computer to have more than 8 GB of RAM as the data is quite heavy. If any errors arise out of lack of memory, you need to run this in a computer with more RAM memory.
 

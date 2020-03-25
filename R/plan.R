@@ -1,17 +1,75 @@
-############################# Read Census 2011 data ###########################
+####################### Read Census 1991 data #################################
+###############################################################################
+
+## # This is the preprocessed data
+## processed_path_1991 <- here("data", "1991_census.fst")
+## # If the preprocessed data does not exist, read the raw
+## # data and resave the file. The preprocessed data is just
+## # the raw data saved in another format which is much faster
+## # to deal with in R (because the census is too big).
+## if (!file.exists(processed_path_1991)) {
+##   data_path <- here("raw_data", "censo_1991")
+##   data_paths <- list.files(data_path,
+##                            pattern = "TXT$",
+##                            full.names = TRUE)
+##   message("The census 1991 microdatos file is being read. This can take some time but",
+##           "this is only run if the preprocessed file is not saved. Once this",
+##           "is run once it will not run again.")
+##   readr::read_table("./raw_data/censo_1991/Diseёo Registro Personas.txt")
+##   # Read the censo
+##   censo <-
+##     censo2001_provincias(
+##       data_paths
+##     )
+##   # Save it in a new (faster) format in the processed_path
+##   write_fst(censo, processed_path_2001)
+## }
+
+
+####################### Read Census 2001 data #################################
 ###############################################################################
 
 # This is the preprocessed data
-processed_path <- here("data", "2011_census.fst")
+processed_path_2001 <- here("data", "2001_census.fst")
 
 # If the preprocessed data does not exist, read the raw
 # data and resave the file. The preprocessed data is just
 # the raw data saved in another format which is much faster
 # to deal with in R (because the census is too big).
-if (!file.exists(processed_path)) {
-  data_path <- here("raw_data", "MicrodatosCP_NV_per_nacional_3VAR.txt")
+if (!file.exists(processed_path_2001)) {
+  data_path <- here("raw_data", "censo_2001", "provincias_datos")
+  data_paths <- list.files(data_path,
+                           pattern = "FASEMUES$",
+                           full.names = TRUE)
 
-  message("The microdatos file is being read. This can take some time but",
+  message("The census 2001 microdatos file is being read. This can take some time but",
+          "this is only run if the preprocessed file is not saved. Once this",
+          "is run once it will not run again.")
+  
+  # Read the censo
+  censo <-
+    censo2001_provincias(
+      data_paths
+    )
+
+  # Save it in a new (faster) format in the processed_path
+  write_fst(censo, processed_path_2001)
+}
+
+############################# Read Census 2011 data ###########################
+###############################################################################
+
+# This is the preprocessed data
+processed_path_2011 <- here("data", "2011_census.fst")
+
+# If the preprocessed data does not exist, read the raw
+# data and resave the file. The preprocessed data is just
+# the raw data saved in another format which is much faster
+# to deal with in R (because the census is too big).
+if (!file.exists(processed_path_2011)) {
+  data_path <- here("raw_data", "censo_2011", "MicrodatosCP_NV_per_nacional_3VAR.txt")
+
+  message("The census 2011 microdatos file is being read. This can take some time but",
           "this is only run if the preprocessed file is not saved. Once this",
           "is run once it will not run again.")
 
@@ -22,17 +80,17 @@ if (!file.exists(processed_path)) {
     )
 
   # Save it in a new (faster) format in the processed_path
-  write_fst(censo, processed_path)
+  write_fst(censo, processed_path_2011)
 
 }
 
-############################# Read the codebook ###############################
+###################### Read the 2011 census codebook #########################
 ###############################################################################
 
 ## variables_link <- "ftp://www.ine.es/temas/censopv/cen11/Personas%20detallado_WEB.xls"
 ## download.file(variables_link, destfile = "./data/variable_labels.xls")
 
-labels_path <- here("raw_data", "variable_labels.xls")
+labels_path <- here("raw_data", "censo_2011", "variable_labels.xls")
 
 variable_coding <-
   read_xls(
@@ -45,35 +103,79 @@ variable_coding <-
 variable_coding <-
   set_names(variable_coding, paste0("X", 1:ncol(variable_coding)))
 
+
 ############################# Drake plan of analysis ##########################
 ###############################################################################
 
 shp_file <-
   here("raw_data/shape_files_censustract/SECC_CPV_E_20111101_01_R_INE.shp")
 
-columns_to_read <- c("CPRO",
-                     "CMUN",
-                     "IDHUECO",
-                     "NORDEN",
-                     "FACTOR",
-                     "MNAC",
-                     "ANAC",
-                     "EDAD",
-                     "SEXO",
-                     "NACI")
+# Column FACTOR is not available in 2001 but only in 2011
+# FACTOR is the weight column. Maybe we have to use weights in
+# 2011 but not in 2001. Anyaywas, exlcuding for now
+codebook <- list()
+
+codebook$variable_descr <-
+  c("Code of province currently living",
+    "Code of municipality currently living",
+    "Family unique ID",
+    "Respondet unique ID (within family)",
+    "Month of birth",
+    "Year of birth",
+    "Age",
+    "Gender",
+    "Country of birth")
+
+codebook$census_2011 <- c("CPRO", # Code province
+                          "CMUN", # Code municipality
+                          "IDHUECO", # Family code
+                          "NORDEN",# Respondent code inside family
+                          ## "FACTOR",
+                          "MNAC", # Month of birth
+                          "ANAC", # Year of birth
+                          "EDAD", # Age
+                          "SEXO", # Gender
+                          "NACI")
+
+class(codebook$census_2011) <- c("census_2011", class(codebook$census_2011))
+
+codebook$census_2001 <- c("CPRO", # Code province
+                          "CMUN", # Code municipality
+                          "HUECO", # Family code
+                          "NORDF",# Respondent code inside family
+                          ## "FACTOR",
+                          "MNAC", # Month of birth
+                          "ANAC", # Year of birth
+                          "EDAD", # Age
+                          "SEXO", # Gender
+                          "NACI")
+
+class(codebook$census_2001) <- c("census_2001", class(codebook$census_2001))
+
+codebook <- as_tibble(codebook)
 
 plan <-
   drake_plan(
-    ############################# Read the data ################################
+    
+    ############################# Read the data 2001 ###########################
+    ############################################################################
+    
+    census_2001 =
+      target(
+        read_census(file_in(processed_path_2001),
+                    shp_file,
+                    codebook$census_2001),
+        format = "fst"
+      ),
+
+    ############################# Read the data 2011 ###########################
     ############################################################################
 
     census_2011 =
       target(
-        read_census(file_in(processed_path),
+        read_census(file_in(processed_path_2011),
                     shp_file,
-                    columns = columns_to_read),
-
+                    codebook$census_2011),
         format = "fst"
       )
-
   )
