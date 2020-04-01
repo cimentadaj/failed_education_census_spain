@@ -1,29 +1,31 @@
 ####################### Read Census 1991 data #################################
 ###############################################################################
 
-## # This is the preprocessed data
-## processed_path_1991 <- here("data", "1991_census.fst")
-## # If the preprocessed data does not exist, read the raw
-## # data and resave the file. The preprocessed data is just
-## # the raw data saved in another format which is much faster
-## # to deal with in R (because the census is too big).
-## if (!file.exists(processed_path_1991)) {
-##   data_path <- here("raw_data", "censo_1991")
-##   data_paths <- list.files(data_path,
-##                            pattern = "TXT$",
-##                            full.names = TRUE)
-##   message("The census 1991 microdatos file is being read. This can take some time but",
-##           "this is only run if the preprocessed file is not saved. Once this",
-##           "is run once it will not run again.")
-##   readr::read_table("./raw_data/censo_1991/Diseёo Registro Personas.txt")
-##   # Read the censo
-##   censo <-
-##     censo2001_provincias(
-##       data_paths
-##     )
-##   # Save it in a new (faster) format in the processed_path
-##   write_fst(censo, processed_path_2001)
-## }
+# This is the preprocessed data
+processed_path_1991 <- here("data", "1991_census.fst")
+# If the preprocessed data does not exist, read the raw
+# data and resave the file. The preprocessed data is just
+# the raw data saved in another format which is much faster
+# to deal with in R (because the census is too big).
+if (!file.exists(processed_path_1991)) {
+  data_path <- here("raw_data", "censo_1991", "provincias")
+  data_paths <- list.files(data_path,
+                           pattern = "zip$",
+                           full.names = TRUE)
+
+  message("The census 1991 microdatos file is being read. This can take some time but ",
+          "this is only run if the preprocessed file is not saved. Once this",
+          "is run once it will not run again.")
+
+  # Read the censo
+  censo <-
+    censo1991_provincias(
+      data_paths
+    )
+  
+  # Save it in a new (faster) format in the processed_path
+  write_fst(censo, processed_path_1991)
+}
 
 
 ####################### Read Census 2001 data #################################
@@ -37,12 +39,12 @@ processed_path_2001 <- here("data", "2001_census.fst")
 # the raw data saved in another format which is much faster
 # to deal with in R (because the census is too big).
 if (!file.exists(processed_path_2001)) {
-  data_path <- here("raw_data", "censo_2001", "provincias_datos")
+  data_path <- here("raw_data", "censo_2001", "provincias")
   data_paths <- list.files(data_path,
-                           pattern = "FASEMUES$",
+                           pattern = "zip$",
                            full.names = TRUE)
 
-  message("The census 2001 microdatos file is being read. This can take some time but",
+  message("The census 2001 microdatos file is being read. This can take some time but ",
           "this is only run if the preprocessed file is not saved. Once this",
           "is run once it will not run again.")
   
@@ -67,16 +69,19 @@ processed_path_2011 <- here("data", "2011_census.fst")
 # the raw data saved in another format which is much faster
 # to deal with in R (because the census is too big).
 if (!file.exists(processed_path_2011)) {
-  data_path <- here("raw_data", "censo_2011", "MicrodatosCP_NV_per_nacional_3VAR.txt")
+  data_path <- here("raw_data", "censo_2011")
+  data_paths <- list.files(data_path,
+                           pattern = "zip$",
+                           full.names = TRUE)
 
-  message("The census 2011 microdatos file is being read. This can take some time but",
+  message("The census 2011 microdatos file is being read. This can take some time but ",
           "this is only run if the preprocessed file is not saved. Once this",
           "is run once it will not run again.")
 
   # Read the censo
   censo <-
     censo2010(
-      data_path
+      data_paths
     )
 
   # Save it in a new (faster) format in the processed_path
@@ -112,7 +117,8 @@ shp_file <-
 
 # Column FACTOR is not available in 2001 but only in 2011
 # FACTOR is the weight column. Maybe we have to use weights in
-# 2011 but not in 2001. Anyaywas, exlcuding for now
+# 2011 but not in 2001. Anyaywas, exlcuding for now.
+# In the 1991 census, the weight column is
 codebook <- list()
 
 codebook$variable_descr <-
@@ -124,8 +130,9 @@ codebook$variable_descr <-
     "Year of birth",
     "Age",
     "Gender",
-    "Country of birth")
+    "Country of birth (for 1991 it's nationality)")
 
+# CPRO, CMUN, IDHUECO, NORDEN uniquely identify
 codebook$census_2011 <- c("CPRO", # Code province
                           "CMUN", # Code municipality
                           "IDHUECO", # Family code
@@ -137,10 +144,10 @@ codebook$census_2011 <- c("CPRO", # Code province
                           "SEXO", # Gender
                           "NACI")
 
-class(codebook$census_2011) <- c("census_2011", class(codebook$census_2011))
-
+# CPRO, CMUN, NSS, HUECO, NORDF uniquely identify
 codebook$census_2001 <- c("CPRO", # Code province
-                          "CMUN", # Code municipality
+                          "CMUN", # Code municipality,
+                          "NSS" # Número Secuencial de Sección
                           "HUECO", # Family code
                           "NORDF",# Respondent code inside family
                           ## "FACTOR",
@@ -150,7 +157,22 @@ codebook$census_2001 <- c("CPRO", # Code province
                           "SEXO", # Gender
                           "NACI")
 
+codebook$census_1991 <- c("PRO", # Code province
+                          "MUN(1)", # Code municipality
+                          ## "HUECO", # Family code
+                          ## "NORDF",# Respondent code inside family
+                          ## "FACTOR",
+                          "MES", # Month of birth
+                          "FECHA", # Year of birth
+                          "EDAD", # Age
+                          "SEXO", # Gender
+                          # NACINB is the nationality rather than the place
+                          # where one was born
+                          "NACINB")
+
+class(codebook$census_2011) <- c("census_2011", class(codebook$census_2011))
 class(codebook$census_2001) <- c("census_2001", class(codebook$census_2001))
+class(codebook$census_1991) <- c("census_1991", class(codebook$census_1991))
 
 codebook <- as_tibble(codebook)
 
