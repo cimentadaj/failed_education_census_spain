@@ -62,7 +62,9 @@ Note that running the whole analysis requires your computer to have more than 8 
 
 <!-- 3. Open an R session on the root of the project and run in R `install.packages("renv")`, then run `renv::init()` and when prompted by the console, choose `1: Restore the project from the lockfile.` by pressing the number `1`. -->
 
-4. Restart R in the root directory and you should see something like this on the top of your screen:
+4. Download the shape files for the municipalities in Spain. You need to download the files at https://www.ine.es/censos2011_datos/cen11_datos_resultados_seccen.htm under Contorno de las secciones censales a 1 de noviembre de 2011 en formato SHP (comprimido ZIP)' and unzip the file in "raw_data/shape_files_censustract/". For the analysis to run, you should have the file "raw_data/shape_files_censustract/SECC_CPV_E_20111101_01_R_INE.shp" with that exact name.
+
+5. Restart R in the root directory and you should see something like this on the top of your screen:
 
 ```
 * Project '~/repositories/fespain' loaded. [renv 0.5.0-66]
@@ -74,4 +76,5 @@ Now run `renv::init()` and when prompted by the console, choose `1: Restore the 
 
 At this point you should have all the code of the project and the packages needed to run it.
 
-5. Restart R in the same root directory and run `drake::r_make()` from the R console. All of the analysis should start compiling.
+6. Restart R in the same root directory and run `drake::r_make()` from the R console. All of the analysis should start compiling.
+

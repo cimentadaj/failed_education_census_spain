@@ -1,5 +1,4 @@
 .drake/
 /raw_data/*
-/raw_data/*
 /data/*
 tst.rds
